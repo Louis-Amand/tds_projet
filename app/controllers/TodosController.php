@@ -1,9 +1,12 @@
 <?php
 namespace controllers;
 
+use Ajax\semantic\widgets\business\user\UserModel;
 use Ubiquity\attributes\items\router\Get;
 use Ubiquity\attributes\items\router\Post;
 use Ubiquity\attributes\items\router\Route;
+use Ubiquity\controllers\Router;
+use Ubiquity\utils\http\URequest;
 use Ubiquity\utils\http\USession;
 
 
@@ -33,7 +36,7 @@ class TodosController extends ControllerBase{
 		$list = USession::get(self::LIST_SESSION_KEY, []);
 		return $this->display($list);
 	}
-	$this->showMessage('Bienvenue !','TodoLists permet de gerer des listes...','info','info circle',[['caption'=>'ouvrir']]);
+	$this->showMessage('Bienvenue !','TodoLists permet de gerer des listes...','info','info circle',    [['url'=>Router::path('todos.new'),'caption'=>'créer une nouvelle liste','style'=>'basic inverted']]);
  }
 	
 	public function display(array $list){
@@ -46,10 +49,13 @@ class TodosController extends ControllerBase{
 		
 	}
 
-	public function displayList(array $list){
-		$this->jquery->change('#multiple','$("._form").toggle();');
-		$this->jquery->renderView('todosController/displayList.html',['list'=>$list]);
-	}
+	public function displayList($list){
+        if(\count($list)>0){
+            $this->jquery->show('._saveList','','',false);
+        }
+        $this->jquery->change('#multiple', '$("._form").toggle();');
+        $this->jquery->renderView('TodosController/displayList.html', ['list'=>$list]);
+    }
 
 
 	#[Get(path: "todos/delete/{index}", name: "todos.delete")]
@@ -60,7 +66,7 @@ class TodosController extends ControllerBase{
 
 	#[Post(path: "todos/add/", name:"todos.add")]
 	public function addElement(){
-		
+		$v = URequest::post('value');
 	}
 
 
@@ -83,8 +89,16 @@ class TodosController extends ControllerBase{
 
 
 	#[Get(path: "todos/new/{force}", name:"todos.new")]
-	public function newlist($force){
+	public function newList($force=false){
+		if($force != false | ! USession::exists(self::LIST_SESSION_KEY)){
+			USession::set(self::LIST_SESSION_KEY,[]);
+			$this->displayList(USession::get(self::LIST_SESSION_KEY));
+		}else if(USession::exists(self::LIST_SESSION_KEY)){
+			$this->showMessage('Nouvelle Liste','Une liste existe déjà. Voulez vous la vider ?','info','info circle',    [['url'=>Router::path('todos.new'),'caption'=>'créer une nouvelle liste','style'=>'basic inverted']]);	
+		}
 		
+		
+        
 	}
 
 
