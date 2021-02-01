@@ -94,11 +94,9 @@ class TodosController extends ControllerBase{
 			USession::set(self::LIST_SESSION_KEY,[]);
 			$this->displayList(USession::get(self::LIST_SESSION_KEY));
 		}else if(USession::exists(self::LIST_SESSION_KEY)){
-			$this->showMessage('Nouvelle Liste','Une liste existe déjà. Voulez vous la vider ?','info','info circle',    [['url'=>Router::path('todos.new'),'caption'=>'créer une nouvelle liste','style'=>'basic inverted']]);	
+			$this->showMessage('Nouvelle Liste','Une liste à déjà été crée. Souhaitez vous la vider ?','','',    [['url'=>Router::path('todos.menu'),'caption'=>'Menu','style'=>'basic inverted'], ['url'=>Router::path('todos.new'),'caption'=>'Confirmer la création','style'=>'btn-succes']]);	
+			$this->displayList(USession::get(self::LIST_SESSION_KEY));
 		}
-		
-		
-        
 	}
 
 
