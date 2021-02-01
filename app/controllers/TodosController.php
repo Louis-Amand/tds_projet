@@ -25,25 +25,20 @@ class TodosController extends ControllerBase{
 		$this->menu();
 	}
 
-
 	public function menu(){
 		$this->loadView('todosController/menu.html');
 	}
 
+
  	#[Route(path:"_default", name:'home' )]
  	public function index(){
 	if(USession::exists(self::LIST_SESSION_KEY)) {
-		$list = USession::get(self::LIST_SESSION_KEY, []);
-		return $this->display($list);
+		$list = USession::get(self::LIST_SESSION_KEY);
+		return $this->displayList($list);
 	}
 	$this->showMessage('Bienvenue !','TodoLists permet de gerer des listes...','info','info circle',    [['url'=>Router::path('todos.new'),'caption'=>'créer une nouvelle liste','style'=>'basic inverted']]);
  }
 	
-	public function display(array $list){
-		$this->loadView('todosController/display.html');
-	}
-
-
 	private function showMessage(string $header, string $message, string $type = '', string $icon = 'info circle',array $buttons=[]) {
 		$this->loadView('main/showMessage.html', compact('header', 'type', 'icon', 'message','buttons'));
 		
@@ -66,7 +61,11 @@ class TodosController extends ControllerBase{
 
 	#[Post(path: "todos/add/", name:"todos.add")]
 	public function addElement(){
-		$v = URequest::post('value');
+		$post = URequest::post('element');
+		$list = USession::get(self::LIST_SESSION_KEY);
+		$list[] = $post;
+		USession::set(self::LIST_SESSION_KEY, $list);
+		$this->displayList($list);
 	}
 
 
@@ -90,13 +89,11 @@ class TodosController extends ControllerBase{
 
 	#[Get(path: "todos/new/{force}", name:"todos.new")]
 	public function newList($force=false){
-		if($force != false | ! USession::exists(self::LIST_SESSION_KEY)){
-			USession::set(self::LIST_SESSION_KEY,[]);
-			$this->displayList(USession::get(self::LIST_SESSION_KEY));
-		}else if(USession::exists(self::LIST_SESSION_KEY)){
-			$this->showMessage('Nouvelle Liste','Une liste à déjà été crée. Souhaitez vous la vider ?','','',    [['url'=>Router::path('todos.menu'),'caption'=>'Menu','style'=>'basic inverted'], ['url'=>Router::path('todos.new'),'caption'=>'Confirmer la création','style'=>'btn-succes']]);	
-			$this->displayList(USession::get(self::LIST_SESSION_KEY));
+		if($force === false && USession::exists(self::LIST_SESSION_KEY)){
+			return $this->showMessage('Nouvelle Liste','Une liste à déjà été crée. Souhaitez vous la vider ?','','',    [['url'=>Router::path('todos.menu'),'caption'=>'Menu','style'=>'basic inverted'], ['url'=>Router::path('todos.new',['nimportequoi']),'caption'=>'Confirmer la création','style'=>'btn-succes']]);
 		}
+		USession::set(self::LIST_SESSION_KEY,[]);
+		$this->displayList([]);
 	}
 
 
