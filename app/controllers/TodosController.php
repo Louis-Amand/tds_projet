@@ -93,9 +93,9 @@ class TodosController extends ControllerBase{
 		if (CacheManager::$cache->exists(self::CACHE_KEY . $uniqid)) {
             $list = CacheManager::$cache->fetch(self::CACHE_KEY . $uniqid);
             USession::set(self::LIST_SESSION_KEY, $list);
-            $this->showMessage("La liste à été chargée", "tt");	
+            $this->showMessage("Chargement","La liste ".$uniqid."à été chargée", "sucess", "check square outline icon");	
 		}else{
-			$this->showMessage("La liste à été chargée", "tt");
+			$this->showMessage('Chargement',"La liste d'id ". $uniqid ." n'existe pas", "error", "frown outline icon");
 			$list = USession::get(self::LIST_SESSION_KEY);
 		}
 		$this->displayList($list);
@@ -107,7 +107,7 @@ class TodosController extends ControllerBase{
 		$id=URequest::post('id');
         if (CacheManager::$cache->exists(self::CACHE_KEY . $id)) {
             $list = CacheManager::$cache->fetch(self::CACHE_KEY . $id);
-			$this->showMessage('Chargement',"Liste chargée depuis" . $id);
+			$this->showMessage("Chargement","La liste ".$id."à été chargée", "sucess", "check square outline icon");
         }else{
             $this->showMessage('Chargement',"La liste d'id ". $id ." n'existe pas", "error", "frown outline icon");
 			$list = USession::get(self::LIST_SESSION_KEY);
@@ -120,7 +120,7 @@ class TodosController extends ControllerBase{
 	#[Get(path: "todos/new/{force}", name:"todos.new")]
 	public function newList($force=false){
 		if($force === false && USession::exists(self::LIST_SESSION_KEY)){
-			return $this->showMessage('Nouvelle Liste','Une liste à déjà été crée. Souhaitez vous la vider ?','info','info circle',    [['url'=>Router::path('todos.menu'),'caption'=>'Annuler','style'=>'basic inverted'], ['url'=>Router::path('todos.new',['MAGA']),'caption'=>'Confirmer la création','style'=>'ui green inverted button']]);
+			return $this->showMessage('Nouvelle Liste','Une liste à déjà été crée. Souhaitez vous la vider ?','warning','info circle',    [['url'=>Router::path('todos.menu'),'caption'=>'Annuler','style'=>'basic inverted'], ['url'=>Router::path('todos.new',['MAGA']),'caption'=>'Confirmer la création','style'=>'ui green inverted button']]);
 		}
 		USession::set(self::LIST_SESSION_KEY,[]);
 		$this->showMessage('Nouvelle Liste','Liste correctement créée.', "success", "check square outline icon");
