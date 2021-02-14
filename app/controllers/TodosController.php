@@ -5,6 +5,7 @@ use Ajax\semantic\widgets\business\user\UserModel;
 use Ubiquity\attributes\items\router\Get;
 use Ubiquity\attributes\items\router\Post;
 use Ubiquity\attributes\items\router\Route;
+use Ubiquity\cache\CacheManager;
 use Ubiquity\controllers\Router;
 use Ubiquity\utils\http\URequest;
 use Ubiquity\utils\http\USession;
@@ -87,14 +88,31 @@ class TodosController extends ControllerBase{
         $this->displayList($list);
 	}
 
-	#[Get(path: "todos/loadList/{uniqid}", name:"todos.loadList")]
+	#[Post(path: "todos/loadList/{uniqid}", name:"todos.loadList")]
 	public function loadList($uniqid){
-		
+		if (CacheManager::$cache->exists(self::CACHE_KEY . $uniqid)) {
+            $list = CacheManager::$cache->fetch(self::CACHE_KEY . $uniqid);
+            USession::set(self::LIST_SESSION_KEY, $list);
+            $this->showMessage("La liste à été chargée", "tt");	
+		}else{
+			$this->showMessage("La liste à été chargée", "tt");
+			$list = USession::get(self::LIST_SESSION_KEY);
+		}
+		$this->displayList($list);
 	}
 
 
-	#[Post(path: "todos/loadList/", name:"todosLoadListPost")]
+	#[Post(path: "todos/loadList/", name:"todos.LoadListPost")]
 	public function loadListFromForm(){
+		$id=URequest::post('id');
+        if (CacheManager::$cache->exists(self::CACHE_KEY . $id)) {
+            $list = CacheManager::$cache->fetch(self::CACHE_KEY . $id);
+			$this->showMessage('Chargement',"Liste chargée depuis" . $id);
+        }else{
+            $this->showMessage('Chargement',"La liste d'id ". $id ." n'existe pas", "error", "frown outline icon");
+			$list = USession::get(self::LIST_SESSION_KEY);
+		}
+		$this->displayList($list);
 		
 	}
 
@@ -105,6 +123,7 @@ class TodosController extends ControllerBase{
 			return $this->showMessage('Nouvelle Liste','Une liste à déjà été crée. Souhaitez vous la vider ?','info','info circle',    [['url'=>Router::path('todos.menu'),'caption'=>'Annuler','style'=>'basic inverted'], ['url'=>Router::path('todos.new',['MAGA']),'caption'=>'Confirmer la création','style'=>'ui green inverted button']]);
 		}
 		USession::set(self::LIST_SESSION_KEY,[]);
+		$this->showMessage('Nouvelle Liste','Liste correctement créée.', "success", "check square outline icon");
 		$this->displayList([]);
 	}
 

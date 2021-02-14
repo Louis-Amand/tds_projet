@@ -48,7 +48,8 @@ return array(
 			"controllers",
 			"cache",
 			"rest",
-			"config"
+			"config",
+			"logs"
 			],
 	"part2"=>[
 			"seo",
