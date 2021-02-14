@@ -53,12 +53,6 @@ class TodosController extends ControllerBase{
     }
 
 
-	#[Get(path: "todos/delete/{index}", name: "todos.delete")]
-	public function deleteElement($index){
-		
-	}
-
-
 	#[Post(path: "todos/add/", name:"todos.add")]
 	public function addElement(){
 		$post = URequest::post('element');
@@ -80,6 +74,18 @@ class TodosController extends ControllerBase{
 		$this->displayList($list);
 	}
 
+
+	
+
+	#[Get(path: "todos/delete/{index}", name: "todos.delete")]
+	public function deleteElement($index){
+		$list=USession::get(self::LIST_SESSION_KEY);
+        if(isset($list[$index])){
+            array_splice($list, $index, 1);
+            USession::set(self::LIST_SESSION_KEY, $list);
+        }
+        $this->displayList($list);
+	}
 
 	#[Get(path: "todos/loadList/{uniqid}", name:"todos.loadList")]
 	public function loadList($uniqid){
