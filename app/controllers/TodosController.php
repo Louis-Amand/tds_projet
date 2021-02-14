@@ -102,7 +102,7 @@ class TodosController extends ControllerBase{
 	#[Get(path: "todos/new/{force}", name:"todos.new")]
 	public function newList($force=false){
 		if($force === false && USession::exists(self::LIST_SESSION_KEY)){
-			return $this->showMessage('Nouvelle Liste','Une liste à déjà été crée. Souhaitez vous la vider ?','','',    [['url'=>Router::path('todos.menu'),'caption'=>'Menu','style'=>'basic inverted'], ['url'=>Router::path('todos.new',['nimportequoi']),'caption'=>'Confirmer la création','style'=>'btn-succes']]);
+			return $this->showMessage('Nouvelle Liste','Une liste à déjà été crée. Souhaitez vous la vider ?','info','info circle',    [['url'=>Router::path('todos.menu'),'caption'=>'Annuler','style'=>'basic inverted'], ['url'=>Router::path('todos.new',['MAGA']),'caption'=>'Confirmer la création','style'=>'ui green inverted button']]);
 		}
 		USession::set(self::LIST_SESSION_KEY,[]);
 		$this->displayList([]);
