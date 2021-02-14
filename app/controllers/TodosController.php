@@ -93,7 +93,7 @@ class TodosController extends ControllerBase{
 		if (CacheManager::$cache->exists(self::CACHE_KEY . $uniqid)) {
             $list = CacheManager::$cache->fetch(self::CACHE_KEY . $uniqid);
             USession::set(self::LIST_SESSION_KEY, $list);
-            $this->showMessage("Chargement","La liste ".$uniqid."à été chargée", "sucess", "check square outline icon");	
+            $this->showMessage("Chargement","La liste ".$uniqid." à été chargée", "success", "check square outline icon");	
 		}else{
 			$this->showMessage('Chargement',"La liste d'id ". $uniqid ." n'existe pas", "error", "frown outline icon");
 			$list = USession::get(self::LIST_SESSION_KEY);
@@ -107,7 +107,7 @@ class TodosController extends ControllerBase{
 		$id=URequest::post('id');
         if (CacheManager::$cache->exists(self::CACHE_KEY . $id)) {
             $list = CacheManager::$cache->fetch(self::CACHE_KEY . $id);
-			$this->showMessage("Chargement","La liste ".$id."à été chargée", "sucess", "check square outline icon");
+			$this->showMessage("Chargement","La liste ".$id." à été chargée", "success", "check square outline icon");
         }else{
             $this->showMessage('Chargement',"La liste d'id ". $id ." n'existe pas", "error", "frown outline icon");
 			$list = USession::get(self::LIST_SESSION_KEY);
@@ -128,9 +128,29 @@ class TodosController extends ControllerBase{
 	}
 
 
-	#[Get(path: "todos/save", name:"todos.save")]
+	#[Get(path: "todos/saveList", name:"todos.save")]
 	public function saveList(){
-		
+		$id = uniqid();
+        $list=USession::get(self::LIST_SESSION_KEY);
+        CacheManager::$cache->store(self::CACHE_KEY . $id, $list);
+
+        if(USession::exists("activeUser")) {
+            if (CacheManager::$cache->exists("datas/user/" . USession::get('activeUser'))) {
+                $lists = CacheManager::$cache->fetch("datas/user/" . USession::get('activeUser'));
+                $lists[] = $id;
+                CacheManager::$cache->store("datas/user/" . USession::get('activeUser'), $lists);
+                $this->showMessage("Sauvegarde", "la liste a été sauvergardée sur". USession::get('activeUser'). $id);
+            } else {
+                $nlists[] = $id;
+                CacheManager::$cache->store("datas/user/" . USession::get('activeUser'), $nlists);
+                $this->showMessage("Sauvegardé sur" . USession::get('activeUser'), $id);
+            }
+        }else{
+            $this->showMessage("Sauvegarde", "La liste a été sauvegardée sous l'id ".$id."<br />Elle sera accessible depuis l'url <span id='url' class='ui inverted label'>https://test-1.sts-sio-caen.info/todos/loadList/".$id."</span>", "success", "check square outline icon");
+        }
+
+
+        $this->displayList($list);
 	}
 
 }
